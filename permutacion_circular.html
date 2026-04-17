@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚴 Permutación Circular - Ciclistas de Urabá 🚴</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 18px;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 999;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .voice-panel {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 998;
+            width: 220px;
+            font-size: 0.85rem;
+        }
+
+        .voice-panel h3 {
+            color: #764ba2;
+            margin-bottom: 8px;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voice-selector {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 2px solid #764ba2;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .voice-btn {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Fredoka', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .voice-btn.activate {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+        .voice-btn.deactivate {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .voice-btn.speaking {
+            animation: pulseVoice 1s infinite;
+        }
+
+        @keyframes pulseVoice {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(17, 153, 142, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(17, 153, 142, 0); }
+        }
+
+        .voice-info {
+            margin-top: 8px;
+            padding: 6px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-size: 0.75em;
+            color: #666;
+            line-height: 1.3;
+        }
+
+        .speaking-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .speaking-indicator.active {
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .sound-bars {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+        }
+
+        .bar {
+            width: 4px;
+            background: white;
+            border-radius: 2px;
+            animation: sound 0.5s ease-in-out infinite;
+        }
+
+        .bar:nth-child(1) { height: 10px; animation-delay: 0s; }
+        .bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+        .bar:nth-child(3) { height: 15px; animation-delay: 0.2s; }
+        .bar:nth-child(4) { height: 25px; animation-delay: 0.3s; }
+
+        @keyframes sound {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1); }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding-top: 70px;
+            padding-left: 260px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 20px;
+                padding-top: 80px;
+            }
+            .voice-panel {
+                position: relative;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .main-header {
+                font-size: 1.5em;
+                padding: 12px 15px;
+            }
+        }
+
+        .intro {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 50px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .intro:hover {
+            transform: scale(1.02);
+        }
+
+        .intro h1 {
+            font-size: 3em;
+            color: #764ba2;
+            text-shadow: 3px 3px 0px #ffd700;
+            margin-bottom: 25px;
+        }
+
+        .intro-text {
+            font-size: 1.5em;
+            color: #2c3e50;
+            line-height: 1.8;
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 35px;
+            border-radius: 20px;
+            border-left: 6px solid #ff6b6b;
+        }
+
+        .problems-container {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+
+        .problem-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+
+        .problem-title {
+            font-size: 2.8em;
+            color: #e74c3c;
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            cursor: pointer;
+            padding: 20px;
+            border-radius: 15px;
+            transition: background 0.3s;
+        }
+
+        .problem-title:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 35px;
+            border-radius: 20px;
+            border: 4px solid #ff9a56;
+            font-size: 1.6em;
+            color: #2c3e50;
+            margin-bottom: 35px;
+            line-height: 1.6;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .question-box:hover {
+            transform: scale(1.02);
+        }
+
+        .answer-banner {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 1.7em;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .answer-banner:hover {
+            transform: scale(1.05);
+        }
+
+        .answer-banner .big-number {
+            font-size: 2.8em;
+            font-weight: bold;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+        }
+
+        .factorial-detail {
+            background: rgba(255,255,255,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            line-height: 1.8;
+        }
+
+        .factorial-detail .multiplication {
+            font-size: 1.1em;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .factorial-detail .result {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        }
+
+        .forms-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 35px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .form-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .form-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .mini-table-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 25px auto;
+        }
+
+        .mini-table {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(145deg, #8B4513, #D2691E);
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            color: white;
+            font-weight: bold;
+        }
+
+        .mini-cyclist {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7em;
+            border: 2px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .mini-cyclist:hover {
+            transform: scale(1.3);
+            z-index: 100;
+        }
+
+        .mini-cyclist.champion {
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 10px #ffd700, 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .mini-name {
+            position: absolute;
+            bottom: -20px;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: #333;
+            background: white;
+            padding: 3px 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+
+        .form-description {
+            text-align: center;
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        .controls {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            margin: 35px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 22px 45px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.4em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .note {
+            background: rgba(255,255,255,0.2);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            font-size: 1.3em;
+            line-height: 1.6;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .note:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .legend {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            margin-top: 40px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .legend h3 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+        }
+
+        .legend-items {
+            display: flex;
+            justify-content: center;
+            gap: 35px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4em;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        .legend-item:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .legend-color {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        @media (max-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+            .container {
+                padding-left: 20px;
+                padding-top: 80px;
+            }
+            .voice-panel {
+                position: relative;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .main-header {
+                font-size: 1.5em;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- TÍTULO PRINCIPAL FIJO -->
+    <div class="main-header">
+        🔢 Permutación Circular 🔢
+    </div>
+
+    <!-- PANEL DE CONTROL DE VOZ -->
+    <div class="voice-panel">
+        <h3>🎙️ Voz</h3>
+        <select id="voiceSelector" class="voice-selector">
+            <option value="">Cargando...</option>
+        </select>
+        <button id="voiceToggleBtn" class="voice-btn activate" onclick="toggleVoice()">
+            <span>🔊</span>
+            <span>Activar</span>
+        </button>
+        <div class="voice-info">
+            💡 Selecciona voz en español
+        </div>
+    </div>
+
+    <div class="speaking-indicator" id="speakingIndicator">
+        <span>🔊 Narrando...</span>
+        <div class="sound-bars">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- INTRODUCCIÓN -->
+        <div class="intro" onclick="speak('intro')">
+            <h1 onclick="speak('titulo')">🚴‍♂️ Campeonato de Ciclismo de Urabá 🚴‍♀️</h1>
+            <div class="intro-text">
+                En el campeonato de ciclismo de la región de Urabá, después de la competencia los ciclistas se agrupan 
+                para participar en una ceremonia de agradecimiento por su participación, para esto deben ubicarse 
+                alrededor de una mesa circular.
+            </div>
+        </div>
+
+        <div class="problems-container">
+            <!-- PROBLEMA A -->
+            <div class="problem-section">
+                <div class="problem-title" onclick="speak('tituloA')">
+                    <span>🎯</span>
+                    <span>Inciso A: 9 Ciclistas Libres</span>
+                </div>
+
+                <div class="question-box" onclick="speak('preguntaA')">
+                    Si los <strong>9 ciclistas</strong> del campeonato se deben sentar alrededor de una mesa circular, 
+                    ¿cuántas maneras diferentes hay de organizarlos?
+                </div>
+
+                <div class="answer-banner" onclick="speak('respuestaA')">
+                    <div>Respuesta: <span class="big-number">40,320</span> maneras diferentes</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Fórmula: (9-1)! = 8!</div>
+                    <div class="factorial-detail">
+                        <div class="multiplication">8! = 8 × 7 × 6 × 5 × 4 × 3 × 2 × 1</div>
+                        <div class="result">= 40,320</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="generateFormsA(); speakAction('Generando 12 formas aleatorias para el problema A')">🎲 Generar 12 Formas Aleatorias</button>
+                    <button class="btn btn-secondary" onclick="showRotationExampleA(); speakAction('Mostrando ejemplo de rotaciones equivalentes')">🔄 Ver Ejemplo de Rotación</button>
+                </div>
+
+                <div class="forms-gallery" id="galleryA">
+                    <!-- Las formas se generarán aquí -->
+                </div>
+
+                <div class="note" onclick="speak('notaA')">
+                    <strong>💡 Nota:</strong> En una mesa circular, las rotaciones no cuentan como formas diferentes. 
+                    Si todos se mueven una silla, es la misma formación. 
+                    Por eso usamos la fórmula <strong>(9-1)! = 8! = 40,320</strong>.
+                </div>
+            </div>
+
+            <!-- PROBLEMA B - CORREGIDO -->
+            <div class="problem-section">
+                <div class="problem-title" onclick="speak('tituloB')">
+                    <span>⭐</span>
+                    <span>Inciso B: Apartadó Fijo</span>
+                </div>
+
+                <div class="question-box" onclick="speak('preguntaB')">
+                    Si se decide que el ciclista de <strong>Apartadó</strong> debe ocupar una posición específica 
+                    en la mesa circular, ¿cuántas maneras diferentes hay de organizar a los <strong>otros 8 ciclistas</strong>?
+                </div>
+
+                <div class="answer-banner" onclick="speak('respuestaB')">
+                    <div>Respuesta: <span class="big-number">5,040</span> maneras diferentes</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Fórmula: (8-1)! = 7!</div>
+                    <div class="factorial-detail">
+                        <div class="multiplication">7! = 7 × 6 × 5 × 4 × 3 × 2 × 1</div>
+                        <div class="result">= 5,040</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="generateFormsB(); speakAction('Generando 12 formas con Apartadó fijo para el problema B')">🎲 Generar 12 Formas con Apartadó Fijo</button>
+                    <button class="btn btn-secondary" onclick="showFixedExampleB(); speakAction('Mostrando ejemplo con Apartadó siempre en la misma posición')">⭐ Ver Apartadó Siempre Arriba</button>
+                </div>
+
+                <div class="forms-gallery" id="galleryB">
+                    <!-- Las formas se generarán aquí -->
+                </div>
+
+                <div class="note" onclick="speak('notaB')">
+                    <strong>💡 Nota:</strong> Al fijar a Apartadó en una posición específica (arriba), 
+                    ahora tenemos <strong>8 ciclistas</strong> para organizar en mesa circular. 
+                    Como sigue siendo circular, usamos <strong>(8-1)! = 7! = 5,040</strong>. 
+                    ¡Es diferente al problema A porque ahora solo organizamos 8 personas, no 9!
+                </div>
+            </div>
+        </div>
+
+        <!-- LEYENDA -->
+        <div class="legend" onclick="speak('leyenda')">
+            <h3>🗺️ Leyenda de Ciclistas (Municipios de Urabá)</h3>
+            <div class="legend-items" id="legendItems">
+                <!-- Se genera con JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de los ciclistas
+        const ciclistas = [
+            { name: 'Apartadó', color: '#FF6B6B', emoji: '🚴', isChampion: true },
+            { name: 'Mutatá', color: '#4ECDC4', emoji: '🚴‍♂️', isChampion: false },
+            { name: 'Turbo', color: '#45B7D1', emoji: '🚴‍♀️', isChampion: false },
+            { name: 'Carepa', color: '#FFA07A', emoji: '🚵', isChampion: false },
+            { name: 'Chigorodó', color: '#98D8C8', emoji: '🚵‍♂️', isChampion: false },
+            { name: 'Necoclí', color: '#F7DC6F', emoji: '🚵‍♀️', isChampion: false },
+            { name: 'Arboletes', color: '#BB8FCE', emoji: '🚴', isChampion: false },
+            { name: 'San Juan', color: '#85C1E2', emoji: '🚴‍♂️', isChampion: false },
+            { name: 'San Pedro', color: '#F8B739', emoji: '🚴‍♀️', isChampion: false }
+        ];
+
+        // Textos para narración - CORREGIDOS
+        const narraciones = {
+            'intro': 'En el campeonato de ciclismo de la región de Urabá, después de la competencia los ciclistas se agrupan para participar en una ceremonia de agradecimiento por su participación, para esto deben ubicarse alrededor de una mesa circular.',
+            'titulo': 'Campeonato de ciclismo de Urabá.',
+            'tituloA': 'Inciso A: 9 ciclistas libres.',
+            'tituloB': 'Inciso B: Apartadó tiene sitio fijo.',
+            'preguntaA': 'Pregunta A: Si los 9 ciclistas del campeonato se deben sentar alrededor de una mesa circular, ¿cuántas maneras diferentes hay de organizarlos?',
+            'preguntaB': 'Pregunta B: Si se decide que el ciclista de Apartadó debe ocupar una posición específica en la mesa circular, ¿cuántas maneras diferentes hay de organizar a los otros 8 ciclistas?',
+            'respuestaA': 'Respuesta del inciso A: 40 mil 320 maneras diferentes. Fórmula: 9 menos 1 factorial, igual a 8 factorial. 8 por 7, por 6, por 5, por 4, por 3, por 2, por 1, igual a 40 mil 320.',
+            'respuestaB': 'Respuesta del inciso B: 5 mil 40 maneras diferentes. Fórmula: 8 menos 1 factorial, igual a 7 factorial. 7 por 6, por 5, por 4, por 3, por 2, por 1, igual a 5 mil 40.',
+            'notaA': 'Nota importante: En una mesa circular, las rotaciones no cuentan como formas diferentes. Si todos se mueven una silla, es la misma formación. Por eso usamos la fórmula 9 menos 1 factorial, igual a 8 factorial, igual a 40 mil 320.',
+            'notaB': 'Nota importante: Al fijar a Apartadó en una posición específica, arriba, ahora tenemos 8 ciclistas para organizar en mesa circular. Como sigue siendo circular, usamos 8 menos 1 factorial, igual a 7 factorial, igual a 5 mil 40. Es diferente al problema A porque ahora solo organizamos 8 personas, no 9.',
+            'leyenda': 'Leyenda de ciclistas. Los municipios de Urabá son: Apartadó, Mutatá, Turbo, Carepa, Chigorodó, Necoclí, Arboletes, San Juan de Urabá y San Pedro de Urabá.'
+        };
+
+        let voiceEnabled = false;
+        let selectedVoice = null;
+        let allVoices = [];
+        const synth = window.speechSynthesis;
+
+        // Cargar voces disponibles
+        function loadVoices() {
+            allVoices = synth.getVoices();
+            const selector = document.getElementById('voiceSelector');
+            selector.innerHTML = '';
+
+            // Filtrar voces en español primero
+            const spanishVoices = allVoices.filter(v => v.lang.startsWith('es'));
+            const otherVoices = allVoices.filter(v => !v.lang.startsWith('es'));
+
+            // Agregar opción por defecto
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Selecciona...';
+            selector.appendChild(defaultOption);
+
+            // Agregar voces en español
+            if (spanishVoices.length > 0) {
+                const spanishGroup = document.createElement('optgroup');
+                spanishGroup.label = '🇪🇸 Español';
+
+                spanishVoices.forEach((voice) => {
+                    const option = document.createElement('option');
+                    option.value = voice.name;
+                    option.textContent = `${voice.name.split(' ')[0]} (${voice.lang})`;
+                    spanishGroup.appendChild(option);
+                });
+
+                selector.appendChild(spanishGroup);
+            }
+
+            // Agregar otras voces
+            if (otherVoices.length > 0) {
+                const otherGroup = document.createElement('optgroup');
+                otherGroup.label = '🌐 Otras';
+
+                otherVoices.forEach((voice) => {
+                    const option = document.createElement('option');
+                    option.value = voice.name;
+                    option.textContent = `${voice.name.split(' ')[0]}`;
+                    otherGroup.appendChild(option);
+                });
+
+                selector.appendChild(otherGroup);
+            }
+
+            // Seleccionar primera voz en español por defecto
+            if (spanishVoices.length > 0) {
+                selector.value = spanishVoices[0].name;
+                selectedVoice = spanishVoices[0];
+            }
+        }
+
+        // Manejar cambio de voz
+        document.getElementById('voiceSelector').addEventListener('change', function() {
+            const voiceName = this.value;
+            selectedVoice = allVoices.find(v => v.name === voiceName);
+        });
+
+        // Esperar a que las voces estén cargadas
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        setTimeout(loadVoices, 100);
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const btn = document.getElementById('voiceToggleBtn');
+
+            if (voiceEnabled) {
+                if (!selectedVoice) {
+                    alert('Selecciona una voz primero');
+                    voiceEnabled = false;
+                    return;
+                }
+
+                btn.classList.remove('activate');
+                btn.classList.add('deactivate');
+                btn.innerHTML = '<span>🔇</span><span>Desactivar</span>';
+                speak('intro');
+            } else {
+                btn.classList.remove('deactivate');
+                btn.classList.add('activate');
+                btn.innerHTML = '<span>🔊</span><span>Activar</span>';
+                btn.classList.remove('speaking');
+                synth.cancel();
+            }
+        }
+
+        function speak(key) {
+            if (!voiceEnabled || !selectedVoice) return;
+
+            const text = narraciones[key];
+            if (!text) return;
+
+            synth.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = selectedVoice;
+            utterance.lang = selectedVoice.lang;
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+
+            utterance.onstart = () => {
+                document.getElementById('speakingIndicator').classList.add('active');
+                document.getElementById('voiceToggleBtn').classList.add('speaking');
+            };
+
+            utterance.onend = () => {
+                document.getElementById('speakingIndicator').classList.remove('active');
+                document.getElementById('voiceToggleBtn').classList.remove('speaking');
+            };
+
+            synth.speak(utterance);
+        }
+
+        function speakAction(action) {
+            if (!voiceEnabled || !selectedVoice) return;
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(action);
+            utterance.voice = selectedVoice;
+            utterance.lang = selectedVoice.lang;
+            utterance.rate = 0.9;
+            synth.speak(utterance);
+        }
+
+        function speakForm(order, isFixed, formNum) {
+            if (!voiceEnabled || !selectedVoice) return;
+
+            const names = order.map(i => ciclistas[i].name);
+            const text = `Forma ${formNum}. Orden: ${names.join(', ')}. ${isFixed ? 'Apartadó fijo arriba.' : ''}`;
+
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = selectedVoice;
+            utterance.lang = selectedVoice.lang;
+            utterance.rate = 0.9;
+            synth.speak(utterance);
+        }
+
+        function speakCyclist(ciclista) {
+            if (!voiceEnabled || !selectedVoice) return;
+
+            let text = '';
+            if (ciclista.isChampion) {
+                text = `Soy ${ciclista.name}, el campeón.`;
+            } else {
+                text = `Soy de ${ciclista.name}.`;
+            }
+
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = selectedVoice;
+            utterance.lang = selectedVoice.lang;
+            utterance.rate = 0.9;
+            synth.speak(utterance);
+        }
+
+        // Generar leyenda
+        function generateLegend() {
+            const container = document.getElementById('legendItems');
+            ciclistas.forEach((c, i) => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background: ${c.color}"></div>
+                    <span>${c.emoji} ${c.name}</span>
+                `;
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    speakCyclist(c);
+                };
+                container.appendChild(item);
+            });
+        }
+
+        // Crear una mini mesa con ciclistas
+        function createMiniTable(order, isFixed = false, formNumber = 1) {
+            const card = document.createElement('div');
+            card.className = 'form-card';
+            card.onclick = () => speakForm(order, isFixed, formNumber);
+
+            const number = document.createElement('div');
+            number.className = 'form-number';
+            number.textContent = formNumber;
+            card.appendChild(number);
+
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'mini-table-container';
+
+            const table = document.createElement('div');
+            table.className = 'mini-table';
+            table.textContent = 'MESA';
+            tableContainer.appendChild(table);
+
+            const radius = 95;
+            const centerX = 130;
+            const centerY = 130;
+
+            order.forEach((ciclistaIndex, position) => {
+                const ciclista = ciclistas[ciclistaIndex];
+                const angle = (position * 2 * Math.PI) / 9 - Math.PI / 2;
+                const x = centerX + radius * Math.cos(angle) - 25;
+                const y = centerY + radius * Math.sin(angle) - 25;
+
+                const cyclistDiv = document.createElement('div');
+                cyclistDiv.className = 'mini-cyclist';
+                if (ciclista.isChampion && isFixed) {
+                    cyclistDiv.classList.add('champion');
+                    cyclistDiv.innerHTML = '⭐';
+                    cyclistDiv.style.backgroundColor = '#FFD700';
+                } else {
+                    cyclistDiv.innerHTML = ciclista.emoji;
+                    cyclistDiv.style.backgroundColor = ciclista.color;
+                }
+                cyclistDiv.style.left = x + 'px';
+                cyclistDiv.style.top = y + 'px';
+                cyclistDiv.onclick = (e) => {
+                    e.stopPropagation();
+                    speakCyclist(ciclista);
+                };
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'mini-name';
+                nameSpan.textContent = ciclista.name;
+                cyclistDiv.appendChild(nameSpan);
+
+                tableContainer.appendChild(cyclistDiv);
+            });
+
+            card.appendChild(tableContainer);
+
+            const description = document.createElement('div');
+            description.className = 'form-description';
+            const orderNames = order.map(i => ciclistas[i].name).join(' → ');
+            description.innerHTML = `<strong>Orden:</strong><br>${orderNames}`;
+            description.onclick = (e) => {
+                e.stopPropagation();
+                speakForm(order, isFixed, formNumber);
+            };
+            card.appendChild(description);
+
+            return card;
+        }
+
+        // Generar formas aleatorias para A
+        function generateFormsA() {
+            const gallery = document.getElementById('galleryA');
+            gallery.innerHTML = '';
+
+            for (let i = 0; i < 12; i++) {
+                const order = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+                for (let j = order.length - 1; j > 0; j--) {
+                    const k = Math.floor(Math.random() * (j + 1));
+                    [order[j], order[k]] = [order[k], order[j]];
+                }
+
+                const card = createMiniTable(order, false, i + 1);
+                gallery.appendChild(card);
+            }
+        }
+
+        // Generar formas para B (CORREGIDO - 8 personas en mesa circular = 7!)
+        function generateFormsB() {
+            const gallery = document.getElementById('galleryB');
+            gallery.innerHTML = '';
+
+            for (let i = 0; i < 12; i++) {
+                // Apartadó fijo (0), otros 7 para organizar (1-7) + uno menos (no usamos el 8)
+                // En realidad son 8 personas totales: Apartadó + 7 que se mueven
+                const others = [1, 2, 3, 4, 5, 6, 7, 8];
+                // Removemos uno aleatoriamente para tener solo 7 que se mueven + Apartadó fijo = 8 total
+                others.splice(Math.floor(Math.random() * others.length), 1);
+
+                for (let j = others.length - 1; j > 0; j--) {
+                    const k = Math.floor(Math.random() * (j + 1));
+                    [others[j], others[k]] = [others[k], others[j]];
+                }
+                const order = [0, ...others]; // Apartadó + 7 = 8 personas
+
+                const card = createMiniTable(order, true, i + 1);
+                gallery.appendChild(card);
+            }
+        }
+
+        // Mostrar ejemplo de rotación
+        function showRotationExampleA() {
+            const gallery = document.getElementById('galleryA');
+            gallery.innerHTML = '';
+
+            const baseOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+            for (let i = 0; i < 9; i++) {
+                const rotated = [...baseOrder.slice(i), ...baseOrder.slice(0, i)];
+                const card = createMiniTable(rotated, false, i + 1);
+
+                const desc = card.querySelector('.form-description');
+                desc.innerHTML = `<strong>Rotación ${i}°</strong><br>Misma formación!`;
+                desc.style.background = i === 0 ? '#d4edda' : '#fff3cd';
+
+                gallery.appendChild(card);
+            }
+
+            const note = document.createElement('div');
+            note.style.gridColumn = '1 / -1';
+            note.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            note.style.color = 'white';
+            note.style.padding = '25px';
+            note.style.borderRadius = '15px';
+            note.style.textAlign = 'center';
+            note.style.fontSize = '1.3em';
+            note.style.cursor = 'pointer';
+            note.innerHTML = '💡 <strong>9 rotaciones = 1 sola forma</strong><br>Por eso usamos (9-1)! = 8!';
+            note.onclick = () => speak('notaA');
+            gallery.appendChild(note);
+        }
+
+        // Mostrar ejemplo con fijo (CORREGIDO - 8 personas = 7!)
+        function showFixedExampleB() {
+            const gallery = document.getElementById('galleryB');
+            gallery.innerHTML = '';
+
+            for (let i = 0; i < 9; i++) {
+                // 7 ciclistas que se mueven + Apartadó fijo = 8 personas totales
+                const others = [1, 2, 3, 4, 5, 6, 7]; // Solo 7, no 8
+                for (let j = 0; j < i; j++) {
+                    const idx1 = j % 7;
+                    const idx2 = (j + 1) % 7;
+                    [others[idx1], others[idx2]] = [others[idx2], others[idx1]];
+                }
+                const order = [0, ...others]; // Apartadó + 7 = 8 personas
+
+                const card = createMiniTable(order, true, i + 1);
+
+                const desc = card.querySelector('.form-description');
+                desc.innerHTML = `<strong>Forma ${i+1}</strong><br>⭐ Apartadó + 7 = 8`;
+                desc.style.background = '#d4edda';
+
+                gallery.appendChild(card);
+            }
+
+            const note = document.createElement('div');
+            note.style.gridColumn = '1 / -1';
+            note.style.background = 'linear-gradient(135deg, #f093fb, #f5576c)';
+            note.style.color = 'white';
+            note.style.padding = '25px';
+            note.style.borderRadius = '15px';
+            note.style.textAlign = 'center';
+            note.style.fontSize = '1.3em';
+            note.style.cursor = 'pointer';
+            note.innerHTML = '⭐ <strong>8 personas en mesa circular</strong><br>Apartadó fijo + 7 que se mueven = (8-1)! = 7! = 5,040';
+            note.onclick = () => speak('notaB');
+            gallery.appendChild(note);
+        }
+
+        // Inicializar
+        window.onload = function() {
+            generateLegend();
+            generateFormsA();
+            generateFormsB();
+        };
+    </script>
+</body>
+</html>
